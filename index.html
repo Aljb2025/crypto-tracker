@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>Crypto Holdings Tracker</title>
+  <style>
+    :root {
+      --bg: #f5f7f8;
+      --panel: #ffffff;
+      --ink: #172026;
+      --muted: #65727c;
+      --line: #dbe2e6;
+      --brand: #0f766e;
+      --brand-dark: #115e59;
+      --blue: #2563eb;
+      --amber: #b7791f;
+      --red: #dc2626;
+      --green: #15803d;
+      --shadow: 0 16px 40px rgba(18, 32, 38, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(100%, 480px);
+      min-height: 100vh;
+      margin: 0 auto;
+      background: #fbfcfc;
+      box-shadow: 0 0 0 1px rgba(23, 32, 38, 0.04);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 10px;
+      background: rgba(251, 252, 252, 0.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(219, 226, 230, 0.7);
+    }
+
+    .title {
+      min-width: 0;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.1;
+      font-weight: 760;
+    }
+
+    .title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-btn,
+    .primary-btn,
+    .secondary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: 8px;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .icon-btn {
+      width: 42px;
+      color: var(--ink);
+      background: #eef3f4;
+    }
+
+    .primary-btn {
+      gap: 8px;
+      padding: 0 14px;
+      color: #fff;
+      background: var(--brand);
+      font-weight: 720;
+    }
+
+    .secondary-btn {
+      gap: 8px;
+      padding: 0 12px;
+      color: var(--ink);
+      background: #eef3f4;
+      font-weight: 680;
+    }
+
+    .icon-btn:active,
+    .primary-btn:active,
+    .secondary-btn:active {
+      transform: scale(0.98);
+    }
+
+    main {
+      padding: 14px 14px 96px;
+    }
+
+    .hero {
+      padding: 18px;
+      background: #102a2c;
+      color: #fff;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 12px;
+    }
+
+    .total {
+      margin-top: 10px;
+      font-size: clamp(34px, 11vw, 46px);
+      line-height: 1;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+    }
+
+    .metric span,
+    .section-head span,
+    .field span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .hero .metric span {
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 18px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .mini {
+      min-width: 0;
+      padding: 12px 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .mini span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    section {
+      margin-top: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .holding {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .holding:first-child {
+      border-top: 0;
+    }
+
+    .coin {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .holding h3 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .holding p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .holding-value {
+      text-align: right;
+      min-width: 74px;
+    }
+
+    .holding-value strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .holding-value span {
+      display: block;
+      margin-top: 4px;
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .bar {
+      grid-column: 2 / 4;
+      height: 7px;
+      overflow: hidden;
+      background: #edf1f2;
+      border-radius: 999px;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--brand);
+      border-radius: inherit;
+    }
+
+    .widgets {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .widget {
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .widget h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    .alloc-row,
+    .insight-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+      border-top: 1px solid #edf1f2;
+    }
+
+    .alloc-row:first-of-type,
+    .insight-row:first-of-type {
+      border-top: 0;
+    }
+
+    .alloc-row span,
+    .insight-row span {
+      min-width: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .alloc-row strong,
+    .insight-row strong {
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .donut-wrap {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .donut {
+      width: 130px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(var(--brand) 0 100%);
+      position: relative;
+    }
+
+    .donut::after {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border-radius: inherit;
+      background: var(--panel);
+    }
+
+    .legend {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .form-actions {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .form-actions button {
+      width: 100%;
+      padding-inline: 8px;
+      color: var(--brand-dark);
+      background: transparent;
+      border: 1px solid transparent;
+      box-shadow: none;
+    }
+
+    .form-actions button:hover,
+    .form-actions button:focus-visible,
+    .form-actions button:active {
+      color: #fff;
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .tools-view,
+    .tools-view .section-head,
+    .tools-view .section-head > div {
+      text-align: center;
+    }
+
+    .tools-view .section-head {
+      justify-content: center;
+    }
+
+    .tools-view .widget {
+      text-align: center;
+    }
+
+    .tools-view .actions {
+      justify-content: center;
+    }
+
+    .tools-view .secondary-btn {
+      width: 100%;
+    }
+
+    .danger {
+      color: #fff;
+      background: var(--red);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      z-index: 6;
+      width: min(100%, 480px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding: 8px 10px max(8px, env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .nav-btn {
+      display: grid;
+      gap: 4px;
+      place-items: center;
+      min-height: 52px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .nav-btn.active {
+      color: var(--brand-dark);
+      background: #e6f4f1;
+    }
+
+    .nav-btn svg,
+    .icon-btn svg,
+    .primary-btn svg,
+    .secondary-btn svg {
+      width: 19px;
+      height: 19px;
+      stroke-width: 2.2;
+    }
+
+    .empty {
+      padding: 28px 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .positive {
+      color: var(--green) !important;
+    }
+
+    .negative {
+      color: var(--red) !important;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 760px) {
+      body {
+        padding: 24px 0;
+      }
+
+      .app {
+        min-height: calc(100vh - 48px);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      .bottom-nav {
+        border-radius: 0 0 18px 18px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .strip,
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .donut-wrap,
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title">
+        <h1>Crypto Tracker</h1>
+        <p id="priceStatus">Manual prices loaded</p>
+      </div>
+      <button class="icon-btn" id="refreshBtn" aria-label="Refresh live prices" title="Refresh live prices">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 0 1-15.2 6.5"/><path d="M3 12A9 9 0 0 1 18.2 5.5"/><path d="M3 20v-5h5"/><path d="M21 4v5h-5"/></svg>
+      </button>
+    </header>
+
+    <main>
+      <section class="view" data-view="dashboard">
+        <div class="hero">
+          <div class="hero-label">
+            <span>Total portfolio value</span>
+            <span id="assetCount">0 assets</span>
+          </div>
+          <div class="total" id="totalValue">$0.00</div>
+          <div class="hero-grid">
+            <div class="metric">
+              <span>24h move</span>
+              <strong id="dailyMove">$0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Largest holding</span>
+              <strong id="largestHolding">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="strip">
+          <div class="mini">
+            <span>Cost basis</span>
+            <strong id="costBasis">$0.00</strong>
+          </div>
+          <div class="mini">
+            <span>Total return</span>
+            <strong id="totalReturn">$0.00</strong>
+          </div>
+          <div class="mini">
+            <span>Avg allocation</span>
+            <strong id="avgAllocation">0%</strong>
+          </div>
+        </div>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <h2>Allocation</h2>
+              <span>Percentage of each holding</span>
+            </div>
+          </div>
+          <div class="widget">
+            <div class="donut-wrap">
+              <div class="donut" id="donut"></div>
+              <div class="legend" id="legend"></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <h2>Widgets</h2>
+              <span>Useful portfolio checks</span>
+            </div>
+          </div>
+          <div class="widgets" id="widgets"></div>
+        </section>
+      </section>
+
+      <section class="view hidden" data-view="holdings">
+        <div class="section-head">
+          <div>
+            <h2>Holdings</h2>
+            <span>Edit, remove, or add assets</span>
+          </div>
+          <button class="primary-btn" data-nav="add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Add
+          </button>
+        </div>
+        <div class="panel" id="holdingsList"></div>
+      </section>
+
+      <section class="view hidden" data-view="add">
+        <div class="section-head">
+          <div>
+            <h2 id="formTitle">Add Holding</h2>
+            <span>Quantity, price, and cost basis</span>
+          </div>
+        </div>
+        <div class="widget">
+          <form class="form-grid" id="holdingForm">
+            <input type="hidden" id="editId">
+            <div class="field-row">
+              <div class="field">
+                <label for="ticker">Ticker</label>
+                <input id="ticker" autocomplete="off" required>
+              </div>
+              <div class="field">
+                <label for="name">Asset name</label>
+                <input id="name" autocomplete="off" required>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="quantity">Quantity</label>
+                <input id="quantity" inputmode="decimal" required>
+              </div>
+              <div class="field">
+                <label for="price">USD price</label>
+                <input id="price" inputmode="decimal" required>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="avgCost">Average cost</label>
+                <input id="avgCost" inputmode="decimal">
+              </div>
+              <div class="field">
+                <label for="target">Target %</label>
+                <input id="target" inputmode="decimal">
+              </div>
+            </div>
+            <div class="field">
+              <label for="coinId">CoinGecko id</label>
+              <input id="coinId" autocomplete="off">
+              <span>Needed only for live price refresh.</span>
+            </div>
+          <div class="actions form-actions">
+            <button type="button" class="secondary-btn" id="clearFormBtn">Clear</button>
+              <button type="button" class="secondary-btn" id="cancelFormBtn">Cancel</button>
+              <button type="submit" class="primary-btn">Save</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="view hidden tools-view" data-view="settings">
+        <div class="section-head">
+          <div>
+            <h2>Tools</h2>
+            <span>Backup and reset</span>
+          </div>
+        </div>
+        <div class="widgets">
+          <div class="widget">
+            <h3>Portfolio Actions</h3>
+            <div class="actions">
+              <button class="secondary-btn" id="exportBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                Export
+              </button>
+              <button class="secondary-btn" id="importBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                Import
+              </button>
+            </div>
+            <input class="hidden" id="importFile" type="file" accept="application/json">
+          </div>
+          <div class="widget">
+            <h3>Clear Portfolio</h3>
+            <p style="margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.45;">Removes saved holdings from this browser only. The published app stays blank.</p>
+            <button class="secondary-btn danger" id="resetBtn">Clear Portfolio</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+      <button class="nav-btn active" data-nav="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/><path d="M13 3h8v6h-8z"/><path d="M3 21h8v-6H3z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-btn" data-nav="holdings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Holdings
+      </button>
+      <button class="nav-btn" data-nav="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        Add
+      </button>
+      <button class="nav-btn" data-nav="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        Tools
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    const storageKey = "crypto-holdings-mobile-v1";
+    const colors = ["#0f766e", "#2563eb", "#9333ea", "#b7791f", "#dc2626", "#15803d", "#475569", "#db2777"];
+    const fixedColors = {
+      BTC: "#f59e0b",
+      XRP: "#2563eb",
+      ADA: "#15803d",
+      ETH: "#9333ea",
+      VET: "#0f766e",
+      ONDO: "#dc2626",
+      SOL: "#7c3aed",
+      DOGE: "#b7791f",
+      USDC: "#2775ca",
+      USDT: "#16a34a"
+    };
+    const tickerToCoinGeckoId = {
+      BTC: "bitcoin",
+      ETH: "ethereum",
+      XRP: "ripple",
+      ADA: "cardano",
+      SOL: "solana",
+      VET: "vechain",
+      ONDO: "ondo-finance",
+      DOGE: "dogecoin",
+      USDC: "usd-coin",
+      USDT: "tether",
+      AVAX: "avalanche-2",
+      DOT: "polkadot",
+      LINK: "chainlink",
+      MATIC: "matic-network",
+      POL: "polygon-ecosystem-token",
+      SHIB: "shiba-inu",
+      LTC: "litecoin",
+      BCH: "bitcoin-cash",
+      XLM: "stellar",
+      HBAR: "hedera-hashgraph",
+      ALGO: "algorand",
+      ATOM: "cosmos",
+      NEAR: "near",
+      ICP: "internet-computer",
+      APT: "aptos",
+      ARB: "arbitrum",
+      OP: "optimism",
+      SUI: "sui"
+    };
+    const uid = () => `h-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+
+    let holdings = loadHoldings();
+    const $ = (selector) => document.querySelector(selector);
+    const money = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: Math.abs(value) >= 1000 ? 0 : 2 }).format(value || 0);
+    const pct = (value) => `${Number.isFinite(value) ? value.toFixed(1) : "0.0"}%`;
+    const num = (value) => Number(String(value || "").replace(/,/g, "")) || 0;
+
+    function coinColor(ticker) {
+      const key = String(ticker || "").toUpperCase();
+      if (fixedColors[key]) return fixedColors[key];
+      const hash = [...key].reduce((total, char) => total + char.charCodeAt(0), 0);
+      return colors[hash % colors.length];
+    }
+
+    function loadHoldings() {
+      const saved = localStorage.getItem(storageKey);
+      if (!saved) return [];
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHoldings() {
+      localStorage.setItem(storageKey, JSON.stringify(holdings));
+    }
+
+    function stats() {
+      const rows = holdings.map((holding, index) => {
+        const value = holding.quantity * holding.price;
+        const cost = holding.quantity * (holding.avgCost || 0);
+        return { ...holding, value, cost, index };
+      });
+      const total = rows.reduce((sum, row) => sum + row.value, 0);
+      const totalCost = rows.reduce((sum, row) => sum + row.cost, 0);
+      rows.forEach((row) => {
+        row.allocation = total ? (row.value / total) * 100 : 0;
+        row.returnValue = row.value - row.cost;
+        row.dailyValue = row.value * ((row.change24h || 0) / 100);
+      });
+      rows.sort((a, b) => b.value - a.value);
+      return {
+        rows,
+        total,
+        totalCost,
+        totalReturn: total - totalCost,
+        dailyMove: rows.reduce((sum, row) => sum + row.dailyValue, 0),
+        largest: [...rows].sort((a, b) => b.value - a.value)[0],
+      };
+    }
+
+    function render() {
+      const data = stats();
+      $("#totalValue").textContent = money(data.total);
+      $("#assetCount").textContent = `${holdings.length} asset${holdings.length === 1 ? "" : "s"}`;
+      $("#dailyMove").textContent = `${data.dailyMove >= 0 ? "+" : ""}${money(data.dailyMove)}`;
+      $("#dailyMove").className = data.dailyMove >= 0 ? "positive" : "negative";
+      $("#largestHolding").textContent = data.largest ? `${data.largest.ticker} ${pct(data.largest.allocation)}` : "-";
+      $("#costBasis").textContent = money(data.totalCost);
+      $("#totalReturn").textContent = `${data.totalReturn >= 0 ? "+" : ""}${money(data.totalReturn)}`;
+      $("#totalReturn").className = data.totalReturn >= 0 ? "positive" : "negative";
+      $("#avgAllocation").textContent = holdings.length ? pct(100 / holdings.length) : "0%";
+      renderHoldings(data);
+      renderDonut(data);
+      renderWidgets(data);
+      saveHoldings();
+    }
+
+    function renderHoldings(data) {
+      const list = $("#holdingsList");
+      if (!data.rows.length) {
+        list.innerHTML = `<div class="empty">No holdings yet. Add your first asset to start tracking percentages.</div>`;
+        return;
+      }
+      list.innerHTML = data.rows.map((row) => `
+        <article class="holding">
+          <button class="coin" style="background:${coinColor(row.ticker)}" data-edit="${row.id}" aria-label="Edit ${row.ticker}">${row.ticker.slice(0, 4)}</button>
+          <div>
+            <h3>${row.name} <span style="color:var(--muted);font-weight:650;">${row.ticker}</span></h3>
+            <p>${formatQuantity(row.quantity)} coins at ${money(row.price)} each</p>
+          </div>
+          <div class="holding-value">
+            <strong>${money(row.value)}</strong>
+            <span>${pct(row.allocation)}</span>
+          </div>
+          <div class="bar"><i style="width:${Math.min(row.allocation, 100)}%;background:${coinColor(row.ticker)}"></i></div>
+        </article>
+      `).join("");
+      document.querySelectorAll("[data-edit]").forEach((button) => {
+        button.addEventListener("click", () => editHolding(button.dataset.edit));
+      });
+    }
+
+    function renderDonut(data) {
+      const donut = $("#donut");
+      const legend = $("#legend");
+      if (!data.rows.length || !data.total) {
+        donut.style.background = "#edf1f2";
+        legend.innerHTML = `<div class="empty" style="padding:0;text-align:left;">Add holdings to see allocation.</div>`;
+        return;
+      }
+
+      let start = 0;
+      const slices = data.rows.map((row) => {
+        const end = start + row.allocation;
+        const slice = `${coinColor(row.ticker)} ${start}% ${end}%`;
+        start = end;
+        return slice;
+      });
+      donut.style.background = `conic-gradient(${slices.join(",")})`;
+      legend.innerHTML = data.rows.slice(0, 6).map((row) => `
+        <div class="legend-item">
+          <i class="swatch" style="background:${coinColor(row.ticker)}"></i>
+          <span>${row.ticker}</span>
+          <strong>${pct(row.allocation)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderWidgets(data) {
+      const targetRows = [...data.rows].sort((a, b) => Math.abs((b.target || 0) - b.allocation) - Math.abs((a.target || 0) - a.allocation));
+      const returnRows = [...data.rows].sort((a, b) => b.returnValue - a.returnValue);
+      const risk = data.largest?.allocation > 45 ? "High concentration" : data.largest?.allocation > 30 ? "Moderate concentration" : "Balanced";
+      const targetHtml = targetRows.filter((row) => row.target).slice(0, 4).map((row) => {
+        const drift = row.allocation - row.target;
+        return `<div class="alloc-row"><span>${row.ticker} target ${pct(row.target)}</span><strong class="${drift >= 0 ? "positive" : "negative"}">${drift >= 0 ? "+" : ""}${pct(drift)}</strong></div>`;
+      }).join("") || `<div class="alloc-row"><span>Add target percentages to track drift</span><strong>-</strong></div>`;
+
+      $("#widgets").innerHTML = `
+        <div class="widget">
+          <h3>Allocation Drift</h3>
+          ${targetHtml}
+        </div>
+        <div class="widget">
+          <h3>Profit and Loss</h3>
+          ${returnRows.slice(0, 4).map((row) => `<div class="insight-row"><span>${row.ticker}</span><strong class="${row.returnValue >= 0 ? "positive" : "negative"}">${row.returnValue >= 0 ? "+" : ""}${money(row.returnValue)}</strong></div>`).join("") || `<div class="insight-row"><span>Add average cost to calculate P/L</span><strong>-</strong></div>`}
+        </div>
+        <div class="widget">
+          <h3>Portfolio Health</h3>
+          <div class="insight-row"><span>Concentration</span><strong>${risk}</strong></div>
+          <div class="insight-row"><span>Largest asset</span><strong>${data.largest ? `${data.largest.ticker} ${pct(data.largest.allocation)}` : "-"}</strong></div>
+          <div class="insight-row"><span>Tracked assets</span><strong>${holdings.length}</strong></div>
+        </div>
+      `;
+    }
+
+    function formatQuantity(value) {
+      return new Intl.NumberFormat("en-US", { maximumFractionDigits: value >= 100 ? 0 : 8 }).format(value || 0);
+    }
+
+    function priceCandidateIds(holding) {
+      const candidates = [];
+      const add = (value) => {
+        const cleaned = String(value || "").trim().toLowerCase();
+        if (cleaned && !candidates.includes(cleaned)) candidates.push(cleaned);
+      };
+      add(holding.coinId);
+      add(tickerToCoinGeckoId[String(holding.ticker || "").toUpperCase()]);
+      return candidates;
+    }
+
+    function showView(view) {
+      document.querySelectorAll(".view").forEach((section) => section.classList.toggle("hidden", section.dataset.view !== view));
+      document.querySelectorAll(".nav-btn").forEach((button) => button.classList.toggle("active", button.dataset.nav === view));
+      if (view === "add" && !$("#editId").value) clearForm();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function editHolding(id) {
+      const holding = holdings.find((item) => item.id === id);
+      if (!holding) return;
+      $("#editId").value = holding.id;
+      $("#ticker").value = holding.ticker;
+      $("#name").value = holding.name;
+      $("#quantity").value = holding.quantity;
+      $("#price").value = holding.price;
+      $("#avgCost").value = holding.avgCost || "";
+      $("#target").value = holding.target || "";
+      $("#coinId").value = holding.coinId || "";
+      $("#formTitle").textContent = `Edit ${holding.ticker}`;
+      showView("add");
+    }
+
+    function clearForm() {
+      $("#editId").value = "";
+      $("#ticker").value = "";
+      $("#name").value = "";
+      $("#quantity").value = "";
+      $("#price").value = "";
+      $("#avgCost").value = "";
+      $("#target").value = "";
+      $("#coinId").value = "";
+      $("#formTitle").textContent = "Add Holding";
+    }
+
+    async function refreshPrices() {
+      const ids = [...new Set(holdings.flatMap(priceCandidateIds))];
+      if (!ids.length) {
+        $("#priceStatus").textContent = "Add a CoinGecko ID or known ticker";
+        return;
+      }
+      $("#priceStatus").textContent = "Refreshing live prices...";
+      try {
+        const encodedIds = ids.map(encodeURIComponent).join(",");
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodedIds}&vs_currencies=usd&include_24hr_change=true`;
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) throw new Error(`CoinGecko returned ${response.status}`);
+        const prices = await response.json();
+        let updatedCount = 0;
+        holdings = holdings.map((holding) => {
+          const live = priceCandidateIds(holding).map((id) => prices[id]).find((price) => price?.usd);
+          if (!live?.usd) return holding;
+          updatedCount += 1;
+          return { ...holding, price: live.usd, change24h: live.usd_24h_change || 0 };
+        });
+        $("#priceStatus").textContent = updatedCount
+          ? `Updated ${updatedCount}/${holdings.length} prices ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+          : "No prices matched. Check CoinGecko IDs.";
+        render();
+      } catch (error) {
+        $("#priceStatus").textContent = `${error.message || "Live refresh unavailable"}; manual prices kept`;
+      }
+    }
+
+    $("#holdingForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const id = $("#editId").value || uid();
+      const next = {
+        id,
+        ticker: $("#ticker").value.trim().toUpperCase(),
+        name: $("#name").value.trim(),
+        quantity: num($("#quantity").value),
+        price: num($("#price").value),
+        avgCost: num($("#avgCost").value),
+        target: num($("#target").value),
+        coinId: $("#coinId").value.trim().toLowerCase(),
+        change24h: holdings.find((holding) => holding.id === id)?.change24h || 0
+      };
+      holdings = holdings.some((holding) => holding.id === id)
+        ? holdings.map((holding) => holding.id === id ? next : holding)
+        : [...holdings, next];
+      clearForm();
+      render();
+      showView("holdings");
+    });
+
+    $("#clearFormBtn").addEventListener("click", clearForm);
+    $("#cancelFormBtn").addEventListener("click", () => {
+      clearForm();
+      showView("holdings");
+    });
+    $("#refreshBtn").addEventListener("click", refreshPrices);
+    $("#resetBtn").addEventListener("click", () => {
+      if (!confirm("Clear all saved holdings from this browser?")) return;
+      holdings = [];
+      clearForm();
+      render();
+      showView("dashboard");
+    });
+    $("#exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(holdings, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "crypto-holdings-backup.json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+    $("#importBtn").addEventListener("click", () => $("#importFile").click());
+    $("#importFile").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const imported = JSON.parse(await file.text());
+        if (!Array.isArray(imported)) throw new Error("Invalid backup");
+        holdings = imported.map((holding) => ({ ...holding, id: holding.id || uid() }));
+        render();
+        showView("dashboard");
+      } catch {
+        alert("That backup file could not be imported.");
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    document.querySelectorAll("[data-nav]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.nav === "add") clearForm();
+        showView(button.dataset.nav);
+      });
+    });
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
