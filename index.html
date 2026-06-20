@@ -528,6 +528,10 @@
               <div class="field"><label for="avgCost">Average cost</label><input id="avgCost" inputmode="decimal"></div>
               <div class="field"><label for="target">Target %</label><input id="target" inputmode="decimal"></div>
             </div>
+            <div class="field-row">
+              <div class="field"><label for="alertAbove">Alert above</label><input id="alertAbove" inputmode="decimal"></div>
+              <div class="field"><label for="alertBelow">Alert below</label><input id="alertBelow" inputmode="decimal"></div>
+            </div>
             <div class="field">
               <label for="coinId">CoinGecko id</label>
               <input id="coinId" autocomplete="off">
@@ -661,6 +665,7 @@
           <div>
             <h3>${row.name} <span style="color:var(--muted);font-weight:650;">${row.ticker}</span></h3>
             <p>${formatQuantity(row.quantity)} coins at ${money(row.price)} each</p>
+            <p>${lastUpdatedText(row)}</p>
           </div>
           <div class="holding-value"><strong>${money(row.value)}</strong><span>${pct(row.allocation)}</span></div>
           <div class="bar"><i style="width:${Math.min(row.allocation, 100)}%;background:${coinColor(row.ticker)}"></i></div>
@@ -692,12 +697,22 @@
     function renderWidgets(data) {
       const targetRows = [...data.rows].sort((a, b) => Math.abs((b.target || 0) - b.allocation) - Math.abs((a.target || 0) - a.allocation));
       const returnRows = [...data.rows].sort((a, b) => b.returnValue - a.returnValue);
+      const alertRows = data.rows.filter((row) => (
+        (row.alertAbove && row.price >= row.alertAbove) ||
+        (row.alertBelow && row.price <= row.alertBelow)
+      ));
       const risk = data.largest?.allocation > 45 ? "High concentration" : data.largest?.allocation > 30 ? "Moderate concentration" : "Balanced";
       const targetHtml = targetRows.filter((row) => row.target).slice(0, 4).map((row) => {
         const drift = row.allocation - row.target;
         return `<div class="row"><span>${row.ticker} target ${pct(row.target)}</span><strong class="${drift >= 0 ? "positive" : "negative"}">${drift >= 0 ? "+" : ""}${pct(drift)}</strong></div>`;
       }).join("") || `<div class="row"><span>Add target percentages to track drift</span><strong>-</strong></div>`;
+      const alertHtml = alertRows.slice(0, 5).map((row) => {
+        const aboveHit = row.alertAbove && row.price >= row.alertAbove;
+        const target = aboveHit ? row.alertAbove : row.alertBelow;
+        return `<div class="row"><span>${row.ticker} ${aboveHit ? "above" : "below"} ${money(target)}</span><strong>${money(row.price)}</strong></div>`;
+      }).join("") || `<div class="row"><span>No price alerts triggered</span><strong>-</strong></div>`;
       $("#widgets").innerHTML = `
+        <div class="widget"><h3>Price Alerts</h3>${alertHtml}</div>
         <div class="widget"><h3>Allocation Drift</h3>${targetHtml}</div>
         <div class="widget"><h3>Profit and Loss</h3>${returnRows.slice(0, 4).map((row) => `<div class="row"><span>${row.ticker}</span><strong class="${row.returnValue >= 0 ? "positive" : "negative"}">${row.returnValue >= 0 ? "+" : ""}${money(row.returnValue)}</strong></div>`).join("") || `<div class="row"><span>Add average cost to calculate P/L</span><strong>-</strong></div>`}</div>
         <div class="widget"><h3>Portfolio Health</h3><div class="row"><span>Concentration</span><strong>${data.largest ? risk : "-"}</strong></div><div class="row"><span>Largest asset</span><strong>${data.largest ? `${data.largest.ticker} ${pct(data.largest.allocation)}` : "-"}</strong></div><div class="row"><span>Tracked assets</span><strong>${holdings.length}</strong></div></div>
@@ -706,6 +721,11 @@
 
     function formatQuantity(value) {
       return new Intl.NumberFormat("en-US", { maximumFractionDigits: value >= 100 ? 0 : 8 }).format(value || 0);
+    }
+
+    function lastUpdatedText(row) {
+      if (!row.priceUpdatedAt) return "Price not refreshed yet";
+      return `Price updated ${new Date(row.priceUpdatedAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`;
     }
 
     function priceCandidateIds(holding) {
@@ -736,6 +756,8 @@
       $("#price").value = holding.price;
       $("#avgCost").value = holding.avgCost || "";
       $("#target").value = holding.target || "";
+      $("#alertAbove").value = holding.alertAbove || "";
+      $("#alertBelow").value = holding.alertBelow || "";
       $("#coinId").value = holding.coinId || "";
       $("#removeHoldingBtn").disabled = false;
       $("#formTitle").textContent = `Edit ${holding.ticker}`;
@@ -750,6 +772,8 @@
       $("#price").value = "";
       $("#avgCost").value = "";
       $("#target").value = "";
+      $("#alertAbove").value = "";
+      $("#alertBelow").value = "";
       $("#coinId").value = "";
       $("#removeHoldingBtn").disabled = true;
       $("#formTitle").textContent = "Add Holding";
@@ -772,7 +796,7 @@
           const live = priceCandidateIds(holding).map((id) => prices[id]).find((price) => price?.usd);
           if (!live?.usd) return holding;
           updatedCount += 1;
-          return { ...holding, price: live.usd, change24h: live.usd_24h_change || 0 };
+          return { ...holding, price: live.usd, change24h: live.usd_24h_change || 0, priceUpdatedAt: new Date().toISOString() };
         });
         $("#priceStatus").textContent = updatedCount ? `Updated ${updatedCount}/${holdings.length} prices ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "No prices matched. Check CoinGecko IDs.";
         render();
@@ -792,8 +816,11 @@
         price: num($("#price").value),
         avgCost: num($("#avgCost").value),
         target: num($("#target").value),
+        alertAbove: num($("#alertAbove").value),
+        alertBelow: num($("#alertBelow").value),
         coinId: $("#coinId").value.trim().toLowerCase(),
-        change24h: holdings.find((holding) => holding.id === id)?.change24h || 0
+        change24h: holdings.find((holding) => holding.id === id)?.change24h || 0,
+        priceUpdatedAt: holdings.find((holding) => holding.id === id)?.priceUpdatedAt || ""
       };
       holdings = holdings.some((holding) => holding.id === id) ? holdings.map((holding) => holding.id === id ? next : holding) : [...holdings, next];
       clearForm();

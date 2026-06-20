@@ -1,4 +1,4 @@
-const CACHE_NAME = "crypto-portfolio-tracker-v1";
+const CACHE_NAME = "crypto-portfolio-tracker-v2";
 const APP_ASSETS = [
   "./",
   "./index.html",
