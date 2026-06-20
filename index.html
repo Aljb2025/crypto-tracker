@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
   <link rel="manifest" href="./manifest.json">
-  <link rel="apple-touch-icon" href="./icon-192.png">
-  <title>Crypto Holdings Tracker</title>
+  <link rel="apple-touch-icon" href="./icon-192.svg">
+  <title>Crypto Portfolio Tracker</title>
   <style>
     :root {
       --bg: #f5f7f8;
@@ -14,18 +14,13 @@
       --ink: #172026;
       --muted: #65727c;
       --line: #dbe2e6;
-      --brand: #0f766e;
-      --brand-dark: #115e59;
-      --blue: #2563eb;
-      --amber: #b7791f;
+      --green: #0f766e;
+      --green-dark: #0b5f59;
       --red: #dc2626;
-      --green: #15803d;
       --shadow: 0 16px 40px rgba(18, 32, 38, 0.1);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -36,23 +31,14 @@
       letter-spacing: 0;
     }
 
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
 
     .app {
       width: min(100%, 480px);
       min-height: 100vh;
       margin: 0 auto;
       background: #fbfcfc;
-      box-shadow: 0 0 0 1px rgba(23, 32, 38, 0.04);
     }
 
     .topbar {
@@ -65,72 +51,55 @@
       gap: 12px;
       padding: 16px 16px 10px;
       background: rgba(251, 252, 252, 0.94);
-      backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(219, 226, 230, 0.7);
+      backdrop-filter: blur(14px);
     }
 
-    .title {
-      min-width: 0;
-    }
+    h1, h2, h3, p { margin-top: 0; }
 
     .title h1 {
       margin: 0;
       font-size: 20px;
       line-height: 1.1;
-      font-weight: 760;
+      font-weight: 800;
     }
 
     .title p {
       margin: 4px 0 0;
       color: var(--muted);
       font-size: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .icon-btn,
-    .primary-btn,
-    .secondary-btn {
+    .icon-btn, .primary-btn, .secondary-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 42px;
       border-radius: 8px;
-      transition: transform 0.15s ease, background 0.15s ease;
+      font-weight: 750;
     }
 
     .icon-btn {
       width: 42px;
-      color: var(--ink);
       background: #eef3f4;
+      color: var(--ink);
     }
 
     .primary-btn {
       gap: 8px;
       padding: 0 14px;
+      background: var(--green);
       color: #fff;
-      background: var(--brand);
-      font-weight: 720;
     }
 
     .secondary-btn {
       gap: 8px;
       padding: 0 12px;
-      color: var(--ink);
       background: #eef3f4;
-      font-weight: 680;
+      color: var(--ink);
     }
 
-    .icon-btn:active,
-    .primary-btn:active,
-    .secondary-btn:active {
-      transform: scale(0.98);
-    }
-
-    main {
-      padding: 14px 14px 96px;
-    }
+    main { padding: 14px 14px 96px; }
 
     .hero {
       padding: 18px;
@@ -145,7 +114,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      color: rgba(255, 255, 255, 0.72);
+      color: rgba(255,255,255,.72);
       font-size: 12px;
     }
 
@@ -153,79 +122,53 @@
       margin-top: 10px;
       font-size: clamp(34px, 11vw, 46px);
       line-height: 1;
-      font-weight: 800;
+      font-weight: 850;
       overflow-wrap: anywhere;
     }
 
-    .hero-grid {
+    .hero-grid, .strip {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-top: 18px;
+      margin-top: 16px;
+    }
+
+    .strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 12px 0 0;
     }
 
     .metric {
       padding: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: 8px;
+      background: rgba(255,255,255,.08);
     }
 
-    .metric span,
-    .section-head span,
-    .field span {
+    .mini {
+      min-width: 0;
+      padding: 12px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .metric span, .mini span, .section-head span, .field span {
       display: block;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.3;
     }
 
-    .hero .metric span {
-      color: rgba(255, 255, 255, 0.68);
-    }
+    .hero .metric span { color: rgba(255,255,255,.68); }
 
-    .metric strong {
+    .metric strong, .mini strong {
       display: block;
       margin-top: 5px;
-      font-size: 18px;
-      line-height: 1.15;
       overflow-wrap: anywhere;
     }
 
-    .strip {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 12px 0;
-    }
-
-    .mini {
-      min-width: 0;
-      padding: 12px 10px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    .mini span {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .mini strong {
-      display: block;
-      margin-top: 5px;
-      font-size: 15px;
-      overflow-wrap: anywhere;
-    }
-
-    section {
-      margin-top: 18px;
-    }
+    section { margin-top: 18px; }
 
     .section-head {
       display: flex;
@@ -241,12 +184,14 @@
       line-height: 1.2;
     }
 
-    .panel {
-      background: var(--panel);
+    .panel, .widget {
       border: 1px solid var(--line);
       border-radius: 8px;
-      overflow: hidden;
+      background: var(--panel);
     }
+
+    .panel { overflow: hidden; }
+    .widget { padding: 14px; }
 
     .holding {
       display: grid;
@@ -257,9 +202,7 @@
       border-top: 1px solid var(--line);
     }
 
-    .holding:first-child {
-      border-top: 0;
-    }
+    .holding:first-child { border-top: 0; }
 
     .coin {
       width: 42px;
@@ -269,7 +212,7 @@
       border-radius: 50%;
       color: #fff;
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 850;
     }
 
     .holding h3 {
@@ -286,83 +229,35 @@
     }
 
     .holding-value {
+      min-width: 76px;
       text-align: right;
-      min-width: 74px;
     }
 
-    .holding-value strong {
+    .holding-value strong, .holding-value span {
       display: block;
-      font-size: 15px;
     }
 
     .holding-value span {
-      display: block;
       margin-top: 4px;
-      color: var(--brand-dark);
+      color: var(--green-dark);
       font-size: 12px;
-      font-weight: 750;
+      font-weight: 800;
     }
 
     .bar {
       grid-column: 2 / 4;
       height: 7px;
       overflow: hidden;
-      background: #edf1f2;
       border-radius: 999px;
+      background: #edf1f2;
     }
 
     .bar i {
       display: block;
       height: 100%;
       width: 0%;
-      background: var(--brand);
       border-radius: inherit;
-    }
-
-    .widgets {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .widget {
-      padding: 14px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    .widget h3 {
-      margin: 0 0 10px;
-      font-size: 14px;
-    }
-
-    .alloc-row,
-    .insight-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 12px;
-      align-items: center;
-      padding: 8px 0;
-      border-top: 1px solid #edf1f2;
-    }
-
-    .alloc-row:first-of-type,
-    .insight-row:first-of-type {
-      border-top: 0;
-    }
-
-    .alloc-row span,
-    .insight-row span {
-      min-width: 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .alloc-row strong,
-    .insight-row strong {
-      font-size: 13px;
-      text-align: right;
+      background: var(--green);
     }
 
     .donut-wrap {
@@ -376,7 +271,7 @@
       width: 130px;
       aspect-ratio: 1;
       border-radius: 50%;
-      background: conic-gradient(var(--brand) 0 100%);
+      background: #edf1f2;
       position: relative;
     }
 
@@ -408,24 +303,48 @@
       border-radius: 3px;
     }
 
-    .form-grid {
+    .widgets {
       display: grid;
       gap: 10px;
     }
 
-    .field {
+    .widget h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+      border-top: 1px solid #edf1f2;
+    }
+
+    .row:first-of-type { border-top: 0; }
+    .row span { color: var(--muted); font-size: 13px; }
+    .row strong { text-align: right; font-size: 13px; }
+
+    .form-grid { display: grid; gap: 10px; }
+
+    .field, .field-row {
       display: grid;
       gap: 6px;
+    }
+
+    .field-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
     .field label {
       color: var(--muted);
       font-size: 12px;
-      font-weight: 720;
+      font-weight: 800;
     }
 
-    .field input,
-    .field select {
+    .field input {
       width: 100%;
       min-height: 44px;
       padding: 0 12px;
@@ -435,65 +354,43 @@
       color: var(--ink);
     }
 
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
     .form-actions {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
     }
 
     .form-actions button {
       width: 100%;
-      padding-inline: 8px;
-      color: var(--brand-dark);
-      background: transparent;
+      min-height: 42px;
+      padding: 0 6px;
       border: 1px solid transparent;
-      box-shadow: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--green-dark);
+      font-weight: 800;
+      transition: background .16s ease, color .16s ease, border-color .16s ease;
     }
 
     .form-actions button:hover,
     .form-actions button:focus-visible,
     .form-actions button:active {
+      background: var(--green);
+      border-color: var(--green);
       color: #fff;
-      background: var(--brand);
-      border-color: var(--brand);
     }
 
-    .tools-view,
-    .tools-view .section-head,
-    .tools-view .section-head > div {
-      text-align: center;
+    .form-actions button:disabled {
+      cursor: not-allowed;
+      opacity: .42;
     }
 
-    .tools-view .section-head {
-      justify-content: center;
-    }
-
-    .tools-view .widget {
-      text-align: center;
-    }
-
-    .tools-view .actions {
-      justify-content: center;
-    }
-
-    .tools-view .secondary-btn {
-      width: 100%;
-    }
-
-    .danger {
-      color: #fff;
-      background: var(--red);
+    .form-actions button:disabled:hover,
+    .form-actions button:disabled:focus-visible {
+      background: transparent;
+      border-color: transparent;
+      color: var(--green-dark);
     }
 
     .bottom-nav {
@@ -506,8 +403,8 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       padding: 8px 10px max(8px, env(safe-area-inset-bottom));
-      background: rgba(255, 255, 255, 0.96);
       border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.96);
       backdrop-filter: blur(14px);
     }
 
@@ -520,68 +417,29 @@
       background: transparent;
       color: var(--muted);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .nav-btn.active {
-      color: var(--brand-dark);
       background: #e6f4f1;
+      color: var(--green-dark);
     }
 
-    .nav-btn svg,
-    .icon-btn svg,
-    .primary-btn svg,
-    .secondary-btn svg {
-      width: 19px;
-      height: 19px;
-      stroke-width: 2.2;
-    }
-
-    .empty {
-      padding: 28px 18px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .positive {
-      color: var(--green) !important;
-    }
-
-    .negative {
-      color: var(--red) !important;
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    svg { width: 19px; height: 19px; stroke-width: 2.2; }
+    .hidden { display: none !important; }
+    .empty { padding: 28px 18px; text-align: center; color: var(--muted); font-size: 13px; }
+    .positive { color: #15803d !important; }
+    .negative { color: var(--red) !important; }
 
     @media (min-width: 760px) {
-      body {
-        padding: 24px 0;
-      }
-
-      .app {
-        min-height: calc(100vh - 48px);
-        border-radius: 18px;
-        overflow: hidden;
-      }
-
-      .bottom-nav {
-        border-radius: 0 0 18px 18px;
-      }
+      body { padding: 24px 0; }
+      .app { min-height: calc(100vh - 48px); border-radius: 18px; overflow: hidden; }
+      .bottom-nav { border-radius: 0 0 18px 18px; }
     }
 
     @media (max-width: 360px) {
-      .strip,
-      .hero-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .donut-wrap,
-      .field-row {
-        grid-template-columns: 1fr;
-      }
+      .strip, .hero-grid, .donut-wrap, .field-row { grid-template-columns: 1fr; }
+      .form-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -589,7 +447,7 @@
   <div class="app">
     <header class="topbar">
       <div class="title">
-        <h1>Crypto Tracker</h1>
+        <h1>Crypto Portfolio Tracker</h1>
         <p id="priceStatus">Manual prices loaded</p>
       </div>
       <button class="icon-btn" id="refreshBtn" aria-label="Refresh live prices" title="Refresh live prices">
@@ -618,26 +476,14 @@
         </div>
 
         <div class="strip">
-          <div class="mini">
-            <span>Cost basis</span>
-            <strong id="costBasis">$0.00</strong>
-          </div>
-          <div class="mini">
-            <span>Total return</span>
-            <strong id="totalReturn">$0.00</strong>
-          </div>
-          <div class="mini">
-            <span>Avg allocation</span>
-            <strong id="avgAllocation">0%</strong>
-          </div>
+          <div class="mini"><span>Cost basis</span><strong id="costBasis">$0.00</strong></div>
+          <div class="mini"><span>Total return</span><strong id="totalReturn">$0.00</strong></div>
+          <div class="mini"><span>Avg allocation</span><strong id="avgAllocation">0%</strong></div>
         </div>
 
         <section>
           <div class="section-head">
-            <div>
-              <h2>Allocation</h2>
-              <span>Percentage of each holding</span>
-            </div>
+            <div><h2>Allocation</h2><span>Percentage of each holding</span></div>
           </div>
           <div class="widget">
             <div class="donut-wrap">
@@ -649,10 +495,7 @@
 
         <section>
           <div class="section-head">
-            <div>
-              <h2>Widgets</h2>
-              <span>Useful portfolio checks</span>
-            </div>
+            <div><h2>Widgets</h2><span>Useful portfolio checks</span></div>
           </div>
           <div class="widgets" id="widgets"></div>
         </section>
@@ -660,182 +503,88 @@
 
       <section class="view hidden" data-view="holdings">
         <div class="section-head">
-          <div>
-            <h2>Holdings</h2>
-            <span>Edit, remove, or add assets</span>
-          </div>
-          <button class="primary-btn" data-nav="add">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-            Add
-          </button>
+          <div><h2>Holdings</h2><span>Edit, remove, or add assets</span></div>
+          <button class="primary-btn" data-nav="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Add</button>
         </div>
         <div class="panel" id="holdingsList"></div>
       </section>
 
       <section class="view hidden" data-view="add">
         <div class="section-head">
-          <div>
-            <h2 id="formTitle">Add Holding</h2>
-            <span>Quantity, price, and cost basis</span>
-          </div>
+          <div><h2 id="formTitle">Add Holding</h2><span>Quantity, price, and cost basis</span></div>
         </div>
         <div class="widget">
           <form class="form-grid" id="holdingForm">
             <input type="hidden" id="editId">
             <div class="field-row">
-              <div class="field">
-                <label for="ticker">Ticker</label>
-                <input id="ticker" autocomplete="off" required>
-              </div>
-              <div class="field">
-                <label for="name">Asset name</label>
-                <input id="name" autocomplete="off" required>
-              </div>
+              <div class="field"><label for="ticker">Ticker</label><input id="ticker" autocomplete="off" required></div>
+              <div class="field"><label for="name">Asset name</label><input id="name" autocomplete="off" required></div>
             </div>
             <div class="field-row">
-              <div class="field">
-                <label for="quantity">Quantity</label>
-                <input id="quantity" inputmode="decimal" required>
-              </div>
-              <div class="field">
-                <label for="price">USD price</label>
-                <input id="price" inputmode="decimal" required>
-              </div>
+              <div class="field"><label for="quantity">Quantity</label><input id="quantity" inputmode="decimal" required></div>
+              <div class="field"><label for="price">USD price</label><input id="price" inputmode="decimal" required></div>
             </div>
             <div class="field-row">
-              <div class="field">
-                <label for="avgCost">Average cost</label>
-                <input id="avgCost" inputmode="decimal">
-              </div>
-              <div class="field">
-                <label for="target">Target %</label>
-                <input id="target" inputmode="decimal">
-              </div>
+              <div class="field"><label for="avgCost">Average cost</label><input id="avgCost" inputmode="decimal"></div>
+              <div class="field"><label for="target">Target %</label><input id="target" inputmode="decimal"></div>
             </div>
             <div class="field">
               <label for="coinId">CoinGecko id</label>
               <input id="coinId" autocomplete="off">
-              <span>Needed only for live price refresh.</span>
+              <span>Optional for known tickers. Needed for live price refresh on less common coins.</span>
             </div>
-          <div class="actions form-actions">
-            <button type="button" class="secondary-btn" id="clearFormBtn">Clear</button>
-              <button type="button" class="secondary-btn" id="cancelFormBtn">Cancel</button>
-              <button type="submit" class="primary-btn">Save</button>
+            <div class="form-actions">
+              <button type="submit">Save</button>
+              <button type="button" id="clearFormBtn">Clear</button>
+              <button type="button" id="cancelFormBtn">Cancel</button>
+              <button type="button" id="removeHoldingBtn" disabled>Remove</button>
             </div>
           </form>
         </div>
       </section>
 
-      <section class="view hidden tools-view" data-view="settings">
-        <div class="section-head">
-          <div>
-            <h2>Tools</h2>
-            <span>Backup and reset</span>
-          </div>
+      <section class="view hidden" data-view="tools">
+        <div class="section-head" style="justify-content:center;text-align:center;">
+          <div><h2>Tools</h2><span>Backup and clear local data</span></div>
         </div>
         <div class="widgets">
-          <div class="widget">
+          <div class="widget" style="text-align:center;">
             <h3>Portfolio Actions</h3>
-            <div class="actions">
-              <button class="secondary-btn" id="exportBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                Export
-              </button>
-              <button class="secondary-btn" id="importBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
-                Import
-              </button>
+            <div class="field-row">
+              <button class="secondary-btn" id="exportBtn">Export</button>
+              <button class="secondary-btn" id="importBtn">Import</button>
             </div>
             <input class="hidden" id="importFile" type="file" accept="application/json">
           </div>
-          <div class="widget">
+          <div class="widget" style="text-align:center;">
             <h3>Clear Portfolio</h3>
-            <p style="margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.45;">Removes saved holdings from this browser only. The published app stays blank.</p>
-            <button class="secondary-btn danger" id="resetBtn">Clear Portfolio</button>
+            <p style="color:var(--muted);font-size:13px;line-height:1.45;">Removes saved holdings from this browser only.</p>
+            <button class="secondary-btn" id="resetBtn">Clear Portfolio</button>
           </div>
         </div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Primary">
-      <button class="nav-btn active" data-nav="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/><path d="M13 3h8v6h-8z"/><path d="M3 21h8v-6H3z"/></svg>
-        Dashboard
-      </button>
-      <button class="nav-btn" data-nav="holdings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Holdings
-      </button>
-      <button class="nav-btn" data-nav="add">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-        Add
-      </button>
-      <button class="nav-btn" data-nav="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-        Tools
-      </button>
+      <button class="nav-btn active" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/><path d="M13 3h8v6h-8z"/><path d="M3 21h8v-6H3z"/></svg>Dashboard</button>
+      <button class="nav-btn" data-nav="holdings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>Holdings</button>
+      <button class="nav-btn" data-nav="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Add</button>
+      <button class="nav-btn" data-nav="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Tools</button>
     </nav>
   </div>
 
   <script>
-    const storageKey = "crypto-holdings-mobile-v1";
+    const storageKey = "crypto-portfolio-tracker-v1";
     const colors = ["#0f766e", "#2563eb", "#9333ea", "#b7791f", "#dc2626", "#15803d", "#475569", "#db2777"];
-    const fixedColors = {
-      BTC: "#f59e0b",
-      XRP: "#2563eb",
-      ADA: "#15803d",
-      ETH: "#9333ea",
-      VET: "#0f766e",
-      ONDO: "#dc2626",
-      SOL: "#7c3aed",
-      DOGE: "#b7791f",
-      USDC: "#2775ca",
-      USDT: "#16a34a"
-    };
-    const tickerToCoinGeckoId = {
-      BTC: "bitcoin",
-      ETH: "ethereum",
-      XRP: "ripple",
-      ADA: "cardano",
-      SOL: "solana",
-      VET: "vechain",
-      ONDO: "ondo-finance",
-      DOGE: "dogecoin",
-      USDC: "usd-coin",
-      USDT: "tether",
-      AVAX: "avalanche-2",
-      DOT: "polkadot",
-      LINK: "chainlink",
-      MATIC: "matic-network",
-      POL: "polygon-ecosystem-token",
-      SHIB: "shiba-inu",
-      LTC: "litecoin",
-      BCH: "bitcoin-cash",
-      XLM: "stellar",
-      HBAR: "hedera-hashgraph",
-      ALGO: "algorand",
-      ATOM: "cosmos",
-      NEAR: "near",
-      ICP: "internet-computer",
-      APT: "aptos",
-      ARB: "arbitrum",
-      OP: "optimism",
-      SUI: "sui"
-    };
+    const fixedColors = { BTC:"#f59e0b", ETH:"#9333ea", XRP:"#2563eb", ADA:"#15803d", SOL:"#7c3aed", VET:"#0f766e", ONDO:"#dc2626", DOGE:"#b7791f", USDC:"#2775ca", USDT:"#16a34a" };
+    const tickerToCoinGeckoId = { BTC:"bitcoin", ETH:"ethereum", XRP:"ripple", ADA:"cardano", SOL:"solana", VET:"vechain", ONDO:"ondo-finance", DOGE:"dogecoin", USDC:"usd-coin", USDT:"tether", AVAX:"avalanche-2", DOT:"polkadot", LINK:"chainlink", MATIC:"matic-network", POL:"polygon-ecosystem-token", SHIB:"shiba-inu", LTC:"litecoin", BCH:"bitcoin-cash", XLM:"stellar", HBAR:"hedera-hashgraph", ALGO:"algorand", ATOM:"cosmos", NEAR:"near", ICP:"internet-computer", APT:"aptos", ARB:"arbitrum", OP:"optimism", SUI:"sui" };
     const uid = () => `h-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
-
-    let holdings = loadHoldings();
     const $ = (selector) => document.querySelector(selector);
+    let holdings = loadHoldings();
+
     const money = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: Math.abs(value) >= 1000 ? 0 : 2 }).format(value || 0);
     const pct = (value) => `${Number.isFinite(value) ? value.toFixed(1) : "0.0"}%`;
     const num = (value) => Number(String(value || "").replace(/,/g, "")) || 0;
-
-    function coinColor(ticker) {
-      const key = String(ticker || "").toUpperCase();
-      if (fixedColors[key]) return fixedColors[key];
-      const hash = [...key].reduce((total, char) => total + char.charCodeAt(0), 0);
-      return colors[hash % colors.length];
-    }
 
     function loadHoldings() {
       const saved = localStorage.getItem(storageKey);
@@ -852,11 +601,18 @@
       localStorage.setItem(storageKey, JSON.stringify(holdings));
     }
 
+    function coinColor(ticker) {
+      const key = String(ticker || "").toUpperCase();
+      if (fixedColors[key]) return fixedColors[key];
+      const hash = [...key].reduce((total, char) => total + char.charCodeAt(0), 0);
+      return colors[hash % colors.length];
+    }
+
     function stats() {
-      const rows = holdings.map((holding, index) => {
+      const rows = holdings.map((holding) => {
         const value = holding.quantity * holding.price;
         const cost = holding.quantity * (holding.avgCost || 0);
-        return { ...holding, value, cost, index };
+        return { ...holding, value, cost };
       });
       const total = rows.reduce((sum, row) => sum + row.value, 0);
       const totalCost = rows.reduce((sum, row) => sum + row.cost, 0);
@@ -872,7 +628,7 @@
         totalCost,
         totalReturn: total - totalCost,
         dailyMove: rows.reduce((sum, row) => sum + row.dailyValue, 0),
-        largest: [...rows].sort((a, b) => b.value - a.value)[0],
+        largest: rows[0]
       };
     }
 
@@ -906,16 +662,11 @@
             <h3>${row.name} <span style="color:var(--muted);font-weight:650;">${row.ticker}</span></h3>
             <p>${formatQuantity(row.quantity)} coins at ${money(row.price)} each</p>
           </div>
-          <div class="holding-value">
-            <strong>${money(row.value)}</strong>
-            <span>${pct(row.allocation)}</span>
-          </div>
+          <div class="holding-value"><strong>${money(row.value)}</strong><span>${pct(row.allocation)}</span></div>
           <div class="bar"><i style="width:${Math.min(row.allocation, 100)}%;background:${coinColor(row.ticker)}"></i></div>
         </article>
       `).join("");
-      document.querySelectorAll("[data-edit]").forEach((button) => {
-        button.addEventListener("click", () => editHolding(button.dataset.edit));
-      });
+      document.querySelectorAll("[data-edit]").forEach((button) => button.addEventListener("click", () => editHolding(button.dataset.edit)));
     }
 
     function renderDonut(data) {
@@ -926,21 +677,15 @@
         legend.innerHTML = `<div class="empty" style="padding:0;text-align:left;">Add holdings to see allocation.</div>`;
         return;
       }
-
       let start = 0;
-      const slices = data.rows.map((row) => {
+      donut.style.background = `conic-gradient(${data.rows.map((row) => {
         const end = start + row.allocation;
         const slice = `${coinColor(row.ticker)} ${start}% ${end}%`;
         start = end;
         return slice;
-      });
-      donut.style.background = `conic-gradient(${slices.join(",")})`;
+      }).join(",")})`;
       legend.innerHTML = data.rows.slice(0, 6).map((row) => `
-        <div class="legend-item">
-          <i class="swatch" style="background:${coinColor(row.ticker)}"></i>
-          <span>${row.ticker}</span>
-          <strong>${pct(row.allocation)}</strong>
-        </div>
+        <div class="legend-item"><i class="swatch" style="background:${coinColor(row.ticker)}"></i><span>${row.ticker}</span><strong>${pct(row.allocation)}</strong></div>
       `).join("");
     }
 
@@ -950,24 +695,12 @@
       const risk = data.largest?.allocation > 45 ? "High concentration" : data.largest?.allocation > 30 ? "Moderate concentration" : "Balanced";
       const targetHtml = targetRows.filter((row) => row.target).slice(0, 4).map((row) => {
         const drift = row.allocation - row.target;
-        return `<div class="alloc-row"><span>${row.ticker} target ${pct(row.target)}</span><strong class="${drift >= 0 ? "positive" : "negative"}">${drift >= 0 ? "+" : ""}${pct(drift)}</strong></div>`;
-      }).join("") || `<div class="alloc-row"><span>Add target percentages to track drift</span><strong>-</strong></div>`;
-
+        return `<div class="row"><span>${row.ticker} target ${pct(row.target)}</span><strong class="${drift >= 0 ? "positive" : "negative"}">${drift >= 0 ? "+" : ""}${pct(drift)}</strong></div>`;
+      }).join("") || `<div class="row"><span>Add target percentages to track drift</span><strong>-</strong></div>`;
       $("#widgets").innerHTML = `
-        <div class="widget">
-          <h3>Allocation Drift</h3>
-          ${targetHtml}
-        </div>
-        <div class="widget">
-          <h3>Profit and Loss</h3>
-          ${returnRows.slice(0, 4).map((row) => `<div class="insight-row"><span>${row.ticker}</span><strong class="${row.returnValue >= 0 ? "positive" : "negative"}">${row.returnValue >= 0 ? "+" : ""}${money(row.returnValue)}</strong></div>`).join("") || `<div class="insight-row"><span>Add average cost to calculate P/L</span><strong>-</strong></div>`}
-        </div>
-        <div class="widget">
-          <h3>Portfolio Health</h3>
-          <div class="insight-row"><span>Concentration</span><strong>${risk}</strong></div>
-          <div class="insight-row"><span>Largest asset</span><strong>${data.largest ? `${data.largest.ticker} ${pct(data.largest.allocation)}` : "-"}</strong></div>
-          <div class="insight-row"><span>Tracked assets</span><strong>${holdings.length}</strong></div>
-        </div>
+        <div class="widget"><h3>Allocation Drift</h3>${targetHtml}</div>
+        <div class="widget"><h3>Profit and Loss</h3>${returnRows.slice(0, 4).map((row) => `<div class="row"><span>${row.ticker}</span><strong class="${row.returnValue >= 0 ? "positive" : "negative"}">${row.returnValue >= 0 ? "+" : ""}${money(row.returnValue)}</strong></div>`).join("") || `<div class="row"><span>Add average cost to calculate P/L</span><strong>-</strong></div>`}</div>
+        <div class="widget"><h3>Portfolio Health</h3><div class="row"><span>Concentration</span><strong>${data.largest ? risk : "-"}</strong></div><div class="row"><span>Largest asset</span><strong>${data.largest ? `${data.largest.ticker} ${pct(data.largest.allocation)}` : "-"}</strong></div><div class="row"><span>Tracked assets</span><strong>${holdings.length}</strong></div></div>
       `;
     }
 
@@ -1004,6 +737,7 @@
       $("#avgCost").value = holding.avgCost || "";
       $("#target").value = holding.target || "";
       $("#coinId").value = holding.coinId || "";
+      $("#removeHoldingBtn").disabled = false;
       $("#formTitle").textContent = `Edit ${holding.ticker}`;
       showView("add");
     }
@@ -1017,6 +751,7 @@
       $("#avgCost").value = "";
       $("#target").value = "";
       $("#coinId").value = "";
+      $("#removeHoldingBtn").disabled = true;
       $("#formTitle").textContent = "Add Holding";
     }
 
@@ -1028,8 +763,7 @@
       }
       $("#priceStatus").textContent = "Refreshing live prices...";
       try {
-        const encodedIds = ids.map(encodeURIComponent).join(",");
-        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodedIds}&vs_currencies=usd&include_24hr_change=true`;
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids.map(encodeURIComponent).join(",")}&vs_currencies=usd&include_24hr_change=true`;
         const response = await fetch(url, { cache: "no-store" });
         if (!response.ok) throw new Error(`CoinGecko returned ${response.status}`);
         const prices = await response.json();
@@ -1040,9 +774,7 @@
           updatedCount += 1;
           return { ...holding, price: live.usd, change24h: live.usd_24h_change || 0 };
         });
-        $("#priceStatus").textContent = updatedCount
-          ? `Updated ${updatedCount}/${holdings.length} prices ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
-          : "No prices matched. Check CoinGecko IDs.";
+        $("#priceStatus").textContent = updatedCount ? `Updated ${updatedCount}/${holdings.length} prices ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "No prices matched. Check CoinGecko IDs.";
         render();
       } catch (error) {
         $("#priceStatus").textContent = `${error.message || "Live refresh unavailable"}; manual prices kept`;
@@ -1063,17 +795,22 @@
         coinId: $("#coinId").value.trim().toLowerCase(),
         change24h: holdings.find((holding) => holding.id === id)?.change24h || 0
       };
-      holdings = holdings.some((holding) => holding.id === id)
-        ? holdings.map((holding) => holding.id === id ? next : holding)
-        : [...holdings, next];
+      holdings = holdings.some((holding) => holding.id === id) ? holdings.map((holding) => holding.id === id ? next : holding) : [...holdings, next];
       clearForm();
       render();
       showView("holdings");
     });
 
     $("#clearFormBtn").addEventListener("click", clearForm);
-    $("#cancelFormBtn").addEventListener("click", () => {
+    $("#cancelFormBtn").addEventListener("click", () => { clearForm(); showView("holdings"); });
+    $("#removeHoldingBtn").addEventListener("click", () => {
+      const id = $("#editId").value;
+      const holding = holdings.find((item) => item.id === id);
+      if (!holding) return;
+      if (!confirm(`Remove ${holding.ticker} from your holdings?`)) return;
+      holdings = holdings.filter((item) => item.id !== id);
       clearForm();
+      render();
       showView("holdings");
     });
     $("#refreshBtn").addEventListener("click", refreshPrices);
@@ -1115,10 +852,9 @@
         showView(button.dataset.nav);
       });
     });
+
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-      });
+      window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
     }
 
     render();

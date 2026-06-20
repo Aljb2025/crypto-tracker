@@ -1,24 +1,20 @@
-const CACHE_NAME = "crypto-tracker-pwa-v5";
+const CACHE_NAME = "crypto-portfolio-tracker-v1";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./icon-192.svg",
+  "./icon-512.svg"
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_ASSETS)));
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
   );
   self.clients.claim();
 });
@@ -26,10 +22,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const requestUrl = new URL(event.request.url);
-
-  if (requestUrl.origin !== self.location.origin) {
-    return;
-  }
+  if (requestUrl.origin !== self.location.origin) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(
